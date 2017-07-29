@@ -22,18 +22,23 @@ def restart_program():
 
 rgb = Squid(16, 20, 21)
 
-if usbDisarm == 0:
-    rgb.set_color(BLUE)
-else:
-    rgb.set_color(GREEN)
+#if usbDisarm == 0:
+#    rgb.set_color(BLUE)
+#else:
+rgb.set_color(GREEN)
+
 
 global counter
 counter = 1
+passcode = ""
 entered_passcode = ""
 correct_passcode = "1234"
 
 factory = rpi_gpio.KeypadFactory()
 keypad = factory.create_4_by_3_keypad()
+
+#def enterCode():
+#    keypad.registerKeyPressHandler(key_pressed2)
 
 def cleanup():
     global keypad
@@ -387,7 +392,7 @@ def incorrect_passcode_entered():
     global counter, entered_passcode
     rgb.set_color(RED)
     play(star_wars_melody, star_wars_tempo, 0.50, 1.000)
-    #time.sleep(2)
+    time.sleep(2)
     rgb.set_color(BLUE)
     print("Incorrect passcode. Access denied.")
     #cleanup()
@@ -410,6 +415,20 @@ def digit_entered(key):
             correct_passcode_entered()
     	else:
             incorrect_passcode_entered()
+
+def digit_entered2(key):
+    global passcode, correct_passcode
+
+    passcode += str(key)
+    print(passcode)
+
+    if len(entered_passcode) == len(correct_passcode):
+	rgb.set_color(BLUE)
+	print("PASSCODE: SET", passcode)
+#    	if entered_passcode == correct_passcode:
+#            correct_passcode_entered()
+#    	else:
+#            incorrect_passcode_entered()
 
 def non_digit_entered(key):
     global entered_passcode
@@ -446,17 +465,54 @@ def key_pressed(key):
     except ValueError:
         non_digit_entered(key)
 
+def key_pressed2(key):
+    try:
+        int_key = int(key)
+	if int_key >= 0 and int_key <= 9:
+	     if int_key == 0:
+                play(zero_melody, zero_tempo, 0.30, .2000)
+             if int_key == 1:
+             	play(one_melody, one_tempo, 0.30, .2000)
+             if int_key == 2:
+             	play(two_melody, two_tempo, 0.30, .2000)
+             if int_key == 3:
+             	play(three_melody, three_tempo, 0.30, .2000)
+             if int_key == 4:
+             	play(four_melody, four_tempo, 0.30, .2000)
+             if int_key == 5:
+             	play(five_melody, five_tempo, 0.30, .2000)
+             if int_key == 6:
+             	play(six_melody, six_tempo, 0.30, .2000)
+             if int_key == 7:
+             	play(seven_melody, seven_tempo, 0.30, .2000)
+             if int_key == 8:
+             	play(eight_melody, eight_tempo, 0.30, .2000)
+             if int_key == 9:
+             	play(nine_melody, nine_tempo, 0.30, .2000)
+	     digit_entered2(key)
+    except ValueError:
+        non_digit_entered(key)
+
+#rgb.set_color(BLUE)
+
 try:
+    #enterCode()
     #factory = rpi_gpio.KeypadFactory()
     #keypad = factory.create_4_by_3_keypad() # makes assumptions about keypad layout and GPIO pin numbers
-
+    keypad.registerKeyPressHandler(key_pressed2)
+    while len(passcode) != 4:
+	print("Enter Passcode")
+    correct_passcode = passcode
+    keypad.unregisterKeyPressHandler(key_pressed2)
     keypad.registerKeyPressHandler(key_pressed)
-
+    rgb.set_color(BLUE)
     print("Enter your passcode (hint: {0}).".format(correct_passcode))
     print("Press * to clear previous digit.")
     on()
+    #rgb.set_color(BLUE)
     while counter <= 4:
-        if usbDisarm != 1:
+        #rgb.set_color(BLUE)
+	if usbDisarm != 1:
 	    device_re = re.compile("Bus\s+(?P<bus>\d+)\s+Device\s+(?P<device>\d+).+ID\s(?P<id>\w+:\w+)\s(?P<tag>.+)$", re.I)
 	    df = subprocess.check_output("lsusb")
 	    devices = []
@@ -469,10 +525,11 @@ try:
                 if "Phison Electronics Corp. Flash Disk" in str(dinfo):
                     print("YES")
 		    usbDisarm = 1
+		    rgb.set_color(GREEN)
 		    print "Super Mario Underworld Theme"
 		    play(underworld_melody, underworld_tempo, 1.3, 0.800)
-   		    for x in range(50):
-			rgb.set_color(GREEN)
+   		    #for x in range(50):
+		    #	rgb.set_color(GREEN)
 		    #time.sleep(15)
 		    cleanup()
             	dinfo['device'] = '/dev/bus/usb/%s/%s' % (dinfo.pop('bus'), dinfo.pop('device'))
