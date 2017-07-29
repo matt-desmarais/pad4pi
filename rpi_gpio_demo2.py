@@ -11,7 +11,7 @@ import re
 import subprocess
 
 usbDisarm = 0
-
+Relay_Pin = 10
 
 def restart_program():
     """Restarts the current program.
@@ -348,6 +348,14 @@ nine_tempo = [
         1,
 ]
 
+star_wars_melody = [ 
+	notes['G4'], notes['G4']
+]
+
+
+star_wars_tempo = [
+	2, 2
+]
 
 #GPIO.setmode(GPIO.BOARD)       # Numbers GPIOs by physical location
 GPIO.setup(Buzzer_Pin, GPIO.OUT)
@@ -378,7 +386,8 @@ def correct_passcode_entered():
 def incorrect_passcode_entered():
     global counter, entered_passcode
     rgb.set_color(RED)
-    time.sleep(2)
+    play(star_wars_melody, star_wars_tempo, 0.50, 1.000)
+    #time.sleep(2)
     rgb.set_color(BLUE)
     print("Incorrect passcode. Access denied.")
     #cleanup()
@@ -473,6 +482,7 @@ try:
 	    time.sleep(5)
 	if counter == 4:
 	    rgb.set_color(RED)
+	    GPIO.setup(Relay_Pin, GPIO.OUT)
 	    print "The Final Countdown"
 	    play(final_countdown_melody, final_countdown_tempo, 0.30, 1.2000)
 	    counter = counter + 1
