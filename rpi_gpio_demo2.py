@@ -27,7 +27,7 @@ rgb = Squid(16, 20, 21)
 #if usbDisarm == 0:
 #    rgb.set_color(BLUE)
 #else:
-rgb.set_color(GREEN)
+rgb.set_color(PURPLE)
 
 
 global counter
@@ -402,6 +402,10 @@ def correct_passcode_entered():
 
 def incorrect_passcode_entered():
     global counter, entered_passcode
+    counter = counter + 1
+    if counter > 3:
+	return
+#        GPIO.setup(Relay_Pin, GPIO.OUT)
     rgb.set_color(RED)
     play(star_wars_melody, star_wars_tempo, 0.50, 1.000)
     time.sleep(1)
@@ -409,9 +413,9 @@ def incorrect_passcode_entered():
     print("Incorrect passcode. Access denied.")
     #cleanup()
     entered_passcode = entered_passcode[:-4]
-    counter = counter + 1
-    if counter > 3:
-	GPIO.setup(Relay_Pin, GPIO.OUT)
+#    counter = counter + 1
+#    if counter > 3:
+#	GPIO.setup(Relay_Pin, GPIO.OUT)
 	#print "The Final Countdown"
 	#play(final_countdown_melody, final_countdown_tempo, 0.30, 1.2000)
     	#time.sleep(25)
@@ -451,7 +455,7 @@ def digit_entered3(key):
     print(timer)
 
     if len(timer) == len(correct_passcode):
-	rgb.set_color(PURPLE)
+	rgb.set_color(GREEN)
 	print("Time: SET", timer)
 	minutes, seconds = divideInHalf(timer)
 	print("Minutes: ", minutes)
@@ -609,7 +613,13 @@ try:
     on()
     #rgb.set_color(BLUE)
     while counter <= 4:
-        #rgb.set_color(BLUE)
+        if counter == 4:
+	    rgb.set_color(RED)
+	    GPIO.setup(Relay_Pin, GPIO.OUT)
+	    print "The Final Countdown"
+	    play(final_countdown_melody, final_countdown_tempo, 0.30, 1.2000)
+	    counter = counter + 1
+	#rgb.set_color(BLUE)
 	if usbDisarm != 1:
 	    device_re = re.compile("Bus\s+(?P<bus>\d+)\s+Device\s+(?P<device>\d+).+ID\s(?P<id>\w+:\w+)\s(?P<tag>.+)$", re.I)
 	    df = subprocess.check_output("lsusb")
