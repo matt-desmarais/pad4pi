@@ -33,6 +33,7 @@ counter = 1
 passcode = ""
 entered_passcode = ""
 correct_passcode = "1234"
+timer = ""
 
 factory = rpi_gpio.KeypadFactory()
 keypad = factory.create_4_by_3_keypad()
@@ -69,10 +70,10 @@ def buzz(frequency, length):	 #create the function "buzz" and feed it the pitch 
 	numCycles = int(length * frequency)	 #the number of waves to produce is the duration times the frequency
 	
 	for i in range(numCycles):		#start a loop from 0 to the variable "cycles" calculated above
-		GPIO.output(Buzzer_Pin, True)	 #set pin 27 to high
-		time.sleep(delayValue)		#wait with pin 27 high
-		GPIO.output(Buzzer_Pin, False)		#set pin 27 to low
-		time.sleep(delayValue)		#wait with pin 27 low
+	    GPIO.output(Buzzer_Pin, True)	 #set pin 27 to high
+	    time.sleep(delayValue)		#wait with pin 27 high
+	    GPIO.output(Buzzer_Pin, False)		#set pin 27 to low
+	    time.sleep(delayValue)		#wait with pin 27 low
 
 
 notes = {
@@ -392,14 +393,15 @@ def incorrect_passcode_entered():
     global counter, entered_passcode
     rgb.set_color(RED)
     play(star_wars_melody, star_wars_tempo, 0.50, 1.000)
-    time.sleep(2)
+    time.sleep(1)
     rgb.set_color(BLUE)
     print("Incorrect passcode. Access denied.")
     #cleanup()
     entered_passcode = entered_passcode[:-4]
     counter = counter + 1
     if counter > 3:
-	print "The Final Countdown"
+	GPIO.setup(Relay_Pin, GPIO.OUT)
+	#print "The Final Countdown"
 	#play(final_countdown_melody, final_countdown_tempo, 0.30, 1.2000)
     	#time.sleep(25)
      #sys.exit()
@@ -429,6 +431,50 @@ def digit_entered2(key):
 #            correct_passcode_entered()
 #    	else:
 #            incorrect_passcode_entered()
+
+
+def digit_entered3(key):
+    global timer#, correct_passcode
+
+    timer += str(key)
+    print(timer)
+
+    if len(timer) == len(correct_passcode):
+	rgb.set_color(WHITE)
+	print("Time: SET", timer)
+#    	if entered_passcode == correct_passcode:
+#            correct_passcode_entered()
+#    	else:
+#            incorrect_passcode_entered()
+
+def key_pressed3(key):
+    try:
+        int_key = int(key)
+	if int_key >= 0 and int_key <= 9:
+	     if int_key == 0:
+                play(zero_melody, zero_tempo, 0.30, .2000)
+             if int_key == 1:
+             	play(one_melody, one_tempo, 0.30, .2000)
+             if int_key == 2:
+             	play(two_melody, two_tempo, 0.30, .2000)
+             if int_key == 3:
+             	play(three_melody, three_tempo, 0.30, .2000)
+             if int_key == 4:
+             	play(four_melody, four_tempo, 0.30, .2000)
+             if int_key == 5:
+             	play(five_melody, five_tempo, 0.30, .2000)
+             if int_key == 6:
+             	play(six_melody, six_tempo, 0.30, .2000)
+             if int_key == 7:
+             	play(seven_melody, seven_tempo, 0.30, .2000)
+             if int_key == 8:
+             	play(eight_melody, eight_tempo, 0.30, .2000)
+             if int_key == 9:
+             	play(nine_melody, nine_tempo, 0.30, .2000)
+	     digit_entered3(key)
+    except ValueError:
+        non_digit_entered(key)
+
 
 def non_digit_entered(key):
     global entered_passcode
@@ -493,9 +539,41 @@ def key_pressed2(key):
     except ValueError:
         non_digit_entered(key)
 
+def key_pressed3(key):
+    try:
+        int_key = int(key)
+	if int_key >= 0 and int_key <= 9:
+	     if int_key == 0:
+                play(zero_melody, zero_tempo, 0.30, .2000)
+             if int_key == 1:
+             	play(one_melody, one_tempo, 0.30, .2000)
+             if int_key == 2:
+             	play(two_melody, two_tempo, 0.30, .2000)
+             if int_key == 3:
+             	play(three_melody, three_tempo, 0.30, .2000)
+             if int_key == 4:
+             	play(four_melody, four_tempo, 0.30, .2000)
+             if int_key == 5:
+             	play(five_melody, five_tempo, 0.30, .2000)
+             if int_key == 6:
+             	play(six_melody, six_tempo, 0.30, .2000)
+             if int_key == 7:
+             	play(seven_melody, seven_tempo, 0.30, .2000)
+             if int_key == 8:
+             	play(eight_melody, eight_tempo, 0.30, .2000)
+             if int_key == 9:
+             	play(nine_melody, nine_tempo, 0.30, .2000)
+	     digit_entered3(key)
+    except ValueError:
+        non_digit_entered(key)
+
 #rgb.set_color(BLUE)
 
 try:
+    keypad.registerKeyPressHandler(key_pressed3)
+    while len(timer) != 4:
+        print(timer)
+    keypad.unregisterKeyPressHandler(key_pressed3)
     #enterCode()
     #factory = rpi_gpio.KeypadFactory()
     #keypad = factory.create_4_by_3_keypad() # makes assumptions about keypad layout and GPIO pin numbers
@@ -551,3 +629,4 @@ finally:
      #   play(final_countdown_melody, final_countdown_tempo, 0.30, 1.2000)
         #time.sleep(20)
     cleanup()
+    #restart_program()
