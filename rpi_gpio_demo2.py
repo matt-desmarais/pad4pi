@@ -9,6 +9,8 @@ import os
 from squid import *
 import re
 import subprocess
+import string
+
 
 usbDisarm = 0
 Relay_Pin = 10
@@ -34,6 +36,15 @@ passcode = ""
 entered_passcode = ""
 correct_passcode = "1234"
 timer = ""
+global minutes, seconds
+minutes = 0
+seconds = 0
+
+def divideInHalf(str):
+    #print(int(str[:round(len(str)/2)]), int(str[round(len(str))/2:]))
+    #return int(str[:round(len(str)/2)]), int(str[round(len(str))/2:])
+    return int(str[0:2]), int(str[2:4])
+ 
 
 factory = rpi_gpio.KeypadFactory()
 keypad = factory.create_4_by_3_keypad()
@@ -434,18 +445,24 @@ def digit_entered2(key):
 
 
 def digit_entered3(key):
-    global timer#, correct_passcode
+    global timer, minutes, seconds
 
     timer += str(key)
     print(timer)
 
     if len(timer) == len(correct_passcode):
-	rgb.set_color(WHITE)
+	rgb.set_color(PURPLE)
 	print("Time: SET", timer)
+	minutes, seconds = divideInHalf(timer)
+	print("Minutes: ", minutes)
+	print("Seconds: ", seconds)
 #    	if entered_passcode == correct_passcode:
 #            correct_passcode_entered()
 #    	else:
 #            incorrect_passcode_entered()
+
+#def divideInHalf(str):
+#    return int(str[:round(len(str)/2)]), int(str[round(len(str))/2:])
 
 def key_pressed3(key):
     try:
@@ -579,6 +596,9 @@ try:
     #keypad = factory.create_4_by_3_keypad() # makes assumptions about keypad layout and GPIO pin numbers
     keypad.registerKeyPressHandler(key_pressed2)
     while len(passcode) != 4:
+	print(timer)
+	print(minutes)
+	print(seconds)
 	print("Enter Passcode")
     correct_passcode = passcode
     keypad.unregisterKeyPressHandler(key_pressed2)
