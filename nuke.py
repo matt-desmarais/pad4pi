@@ -14,12 +14,12 @@ import fourletterphat
 import threading
 from threading import Thread
 
-
 disarmed = 0
 usbDisarm = 0
 Relay_Pin = 10
 global curr_minutes
 
+GPIO.setmode(GPIO.BCM)  
 def restart_program():
     """Restarts the current program.
     Note: this function does not return. Any cleanup action (like
@@ -29,13 +29,8 @@ def restart_program():
 
 rgb = Squid(16, 20, 21)
 rgb2 = Squid(13, 19, 26)
-#if usbDisarm == 0:
-#    rgb.set_color(BLUE)
-#else:
 rgb.set_color(YELLOW)
 rgb2.set_color(YELLOW)
-
-
 
 global counter
 counter = 1
@@ -50,7 +45,6 @@ seconds = 0
 def divideInHalf(str):
     return int(str[0:2]), int(str[2:4])
  
-
 factory = rpi_gpio.KeypadFactory()
 keypad = factory.create_4_by_3_keypad()
 
@@ -594,6 +588,10 @@ try:
     keypad.registerKeyPressHandler(key_pressed3)
     while len(timer) != 4:
 	      print(timer)
+    fourletterphat.clear()
+    fourletterphat.print_str(timer)
+    fourletterphat.show()    
+    time.sleep(1)
     keypad.unregisterKeyPressHandler(key_pressed3)
     #enterCode()
     fourletterphat.clear()
@@ -661,9 +659,13 @@ try:
 			fourletterphat.clear()
                         fourletterphat.print_str("BOOM")
 			fourletterphat.show()
-			GPIO.setup(Relay_Pin, GPIO.OUT)   
+			GPIO.setup(Relay_Pin, GPIO.OUT)
+			play(final_countdown_melody, final_countdown_tempo, 0.30, 1.2000)
+			#GPIO.setup(Relay_Pin, GPIO.OUT)
+		        #time.sleep(20)
+			cleanup()   
 	
-        print("Counting down {minutes} minutes and {seconds} seconds...".format(minutes=minutes, seconds=seconds))
+        #print("Counting down {minutes} minutes and {seconds} seconds...".format(minutes=minutes, seconds=seconds))
 	if counter == 4:
 	    rgb.set_color(RED)
 	    rgb2.set_color(RED)
